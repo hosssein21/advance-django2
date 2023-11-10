@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Post
 from django.views.generic import (TemplateView,RedirectView,ListView,DetailView ,\
                                     CreateView,UpdateView,DeleteView)
+from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 
 class IndexView(TemplateView):
     template_name='blog/index.html'
@@ -20,7 +21,8 @@ class PostList(ListView):
     context_object_name='posts'
     template_name='blog/posts.html'
     
-class PostDetail(DetailView):
+class PostDetail(PermissionRequiredMixin,LoginRequiredMixin,DetailView):
+    permission_required='blog.view_post_detail'
     queryset=Post.objects.filter(Active=1)
     template_name='blog/post.html'
     
