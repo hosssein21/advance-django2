@@ -1,9 +1,10 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view,permission_classes,action
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView,ListCreateAPIView,RetrieveUpdateDestroyAPIView
+from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from ...models  import Post
 from .serializes import PostSerializer
@@ -102,3 +103,29 @@ class PostDetailGeneric(RetrieveUpdateDestroyAPIView):
     permission_classes=[IsAuthenticated]
     serializer_class = PostSerializer
     queryset=Post.objects.filter(Active=1)
+    
+
+class PostViewSet(viewsets.ViewSet):
+    
+    permission_classes=[IsAuthenticated]
+    serializer_class = PostSerializer
+    queryset=Post.objects.filter(Active=1)
+    
+    def list(self, request):
+        serializer=self.serializer_class(self.queryset,many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self, request,pk=None):
+        post_object=get_object_or_404(self.queryset,pk=pk)
+        serializer=self.serializer_class(post_object)
+        return Response(serializer.data)
+    
+class PostModelViewSet(viewsets.ModelViewSet):
+     
+    permission_classes=[IsAuthenticated]
+    serializer_class = PostSerializer
+    queryset=Post.objects.filter(Active=1)
+    
+    @action(methods=['get'],detail=False)
+    def get_ok(self,request):
+        return Response({'detail':"This is Ok"})
