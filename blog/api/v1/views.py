@@ -8,6 +8,10 @@ from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from ...models  import Post,Category
 from .serializes import PostSerializer,CategorySerializer
+from .permissions import IsOwnerOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter,OrderingFilter
+from .paginations import DefaultPagination
 
 @api_view()
 def api_index(request):
@@ -122,9 +126,14 @@ class PostViewSet(viewsets.ViewSet):
     
 class PostModelViewSet(viewsets.ModelViewSet):
      
-    permission_classes=[IsAuthenticated]
+    permission_classes=[IsAuthenticated,IsOwnerOrReadOnly]
     serializer_class = PostSerializer
     queryset=Post.objects.filter(Active=1)
+    filter_backends=[DjangoFilterBackend,SearchFilter]
+    filterset_fields = ['category', 'author','Active']
+    search_fields=['title','content']
+    OrderingFilter=['created_time']
+    pagination_class=DefaultPagination
     
     @action(methods=['get'],detail=False)
     def get_ok(self,request):
