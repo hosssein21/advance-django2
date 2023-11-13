@@ -6,8 +6,8 @@ from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView,ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-from ...models  import Post
-from .serializes import PostSerializer
+from ...models  import Post,Category
+from .serializes import PostSerializer,CategorySerializer
 
 @api_view()
 def api_index(request):
@@ -129,3 +129,9 @@ class PostModelViewSet(viewsets.ModelViewSet):
     @action(methods=['get'],detail=False)
     def get_ok(self,request):
         return Response({'detail':"This is Ok"})
+    
+
+class CategoryModelViewSet(viewsets.ModelViewSet):
+    permission_classes=[IsAuthenticated]
+    serializer_class = CategorySerializer
+    queryset=Category.objects.all()
